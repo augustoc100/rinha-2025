@@ -1,0 +1,20 @@
+FROM ruby:3.4.2-slim
+
+WORKDIR /app
+RUN apt-get update && apt-get install -y git \
+  libpq-dev \
+  libz-dev \
+  build-essential \
+  gcc \
+  make
+
+
+COPY Gemfile Gemfile.lock ./
+RUN bundle install
+
+COPY . .
+
+EXPOSE 4567
+
+# CMD ["rerun", "--", "ruby", "app.rb"]
+CMD ["ruby", "app.rb"]

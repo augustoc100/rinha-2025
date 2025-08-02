@@ -1,0 +1,11 @@
+backend psql
+postgresql://postgres:postgres@localhost:5432/postgres
+
+
+rinha psql
+
+#fallback
+postgres://postgres:postgres@localhost:54322/rinha
+
+#default
+postgres://postgres:postgres@localhost:54321/rinha
