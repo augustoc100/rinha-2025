@@ -6,7 +6,8 @@ RUN apt-get update && apt-get install -y git \
   libz-dev \
   build-essential \
   gcc \
-  make
+  make \
+  curl
 
 
 COPY Gemfile Gemfile.lock ./
@@ -16,5 +17,4 @@ COPY . .
 
 EXPOSE 4567
 
-# CMD ["rerun", "--", "ruby", "app.rb"]
-CMD ["ruby", "app.rb"]
+CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]

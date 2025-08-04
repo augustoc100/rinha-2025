@@ -25,8 +25,8 @@
     # Example of updating a table, if needed
     # DB.alter_table(:items) do
     #     # Add a new column if it doesn't exist
-    #     add_column :category, String unless column_exists?(:items, :category) 
-    #     add_column :description, String unless column_exists?(:items, :description) 
+    #     add_column :category, String unless column_exists?(:items, :category)
+    #     add_column :description, String unless column_exists?(:items, :description)
     #   end
   end
 

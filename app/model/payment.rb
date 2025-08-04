@@ -13,12 +13,12 @@ class Payment < Sequel::Model
   # end
 
   def attributes
-    puts "instance variables"
     {
       id: id,
       correlation_id: correlation_id,
       amount: amount,
       processed_by: processed_by,
+      requested_at: requested_at,
       created_at: created_at,
       updated_at: updated_at
     }
