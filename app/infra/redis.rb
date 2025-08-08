@@ -3,10 +3,10 @@ require 'redis'
 
 
 def get_redis_connection
-p "Configuring Redis connection"
+# p "Configuring Redis connection"
 
+# p "REDIS URL: #{url}"
 url = ENV['REDIS_URL'] || 'redis://localhost:6379/0'
-p "REDIS URL: #{url}"
   Redis.new(
   url: url,
   connect_timeout: 5, # segundos
@@ -14,5 +14,3 @@ p "REDIS URL: #{url}"
   write_timeout: 5    # segundos
   )
 end
-
-REDIS = get_redis_connection

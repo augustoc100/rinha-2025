@@ -1,5 +1,12 @@
 version: '3.8'
 
+# 1,5 unidades de CPU e 350MB 
+# deploy:
+#       resources:
+#         limits:
+#           cpus: "0.15"
+#           memory: "42MB"
+
 x-service-templates:
   app-base: &app-base
     build: .
@@ -9,6 +16,11 @@ x-service-templates:
       - backend
       - payment-db
       - payment-processor
+    deploy:
+      resources:
+        limits:
+          cpus: "0.40"
+          memory: "70MB"
     depends_on:
       - db
       - redis
@@ -17,6 +29,11 @@ services:
     image: redis:7
     ports:
       - "6379:6379"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.20"
+          memory: "60MB"
     networks:
       - backend
   backend1:
@@ -44,6 +61,11 @@ services:
     networks:
       - backend
       - payment-processor
+    deploy:
+      resources:
+        limits:
+          cpus: "0.20"
+          memory: "20MB"
     depends_on:
       - backend1
       - backend2
@@ -59,6 +81,11 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - payment-db
+    deploy:
+      resources:
+        limits:
+          cpus: "0.30"
+          memory: "130MB"
 volumes:
   pgdata:
 

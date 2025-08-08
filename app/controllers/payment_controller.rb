@@ -5,8 +5,11 @@ require_relative '../model/queries/get_payment_summary'
 require_relative '../use_cases/process_payment'
 
 class PaymentController < Sinatra::Base
+  configure do
+    set :logging, false
+  end
     post "/payments" do
-      p "POST payment"
+      # p "POST payment"
       params = JSON.parse request.body.read
 
       ProcessPayment.call(params)

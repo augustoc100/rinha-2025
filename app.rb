@@ -7,21 +7,21 @@ require_relative './app/controllers/controllers'
 
 require_relative './app/use_cases/process_payment'
 
-Thread.new { ProcessPayment.configure_workers }
+Thread.new { ProcessPayment.configure_workers(worker_count: 7) }
 
 # Configurar Sinatra para aceitar conexões externas
 set :bind, '0.0.0.0'
 # set :port, 4567
-get '/redis_health' do
-  p "redis health"
-  begin
-    status = REDIS.ping == 'PONG' ? 'UP' : 'DOWN'
-    code = status == 'UP' ? 200 : 500
-    [code, { status: status, redis_url: ENV['REDIS_URL'] }.to_json]
-  rescue => e
-    [500, { status: 'DOWN', error: e.message, redis_url: ENV['REDIS_URL'] }.to_json]
-  end
-end
+# get '/redis_health' do
+#   p "redis health"
+#   begin
+#     # status = REDIS.ping == 'PONG' ? 'UP' : 'DOWN'
+#     # code = status == 'UP' ? 200 : 500
+#     # [code, { status: status, redis_url: ENV['REDIS_URL'] }.to_json]
+#   rescue => e
+#     [500, { status: 'DOWN', error: e.message, redis_url: ENV['REDIS_URL'] }.to_json]
+#   end
+# end
 
 get '/' do
   {foo: 'bar', app_instance: ENV['APP_INSTANCE']}.to_json

@@ -38,8 +38,8 @@ class GetPaymentSummary
       end
 
       result[key] = {
-        totalRequests: group[:total_requests],
-        totalAmount: group[:total_amount]
+        totalRequests: group[:total_requests].round(1),
+        totalAmount: group[:total_amount].round(1)
       }
       result
     end
