@@ -1,8 +1,30 @@
 class GatewayError < StandardError; end
 
-class DefaultGatewayClient
-  def self.url 
-      ENV['PROCESSOR_DEFAULT_URL'] || "localhost:8001"
+require 'json'
+require_relative './../cache'
+
+class PaymentGatewayBase
+  def self.health(times = 1)
+    p "health url #{times}"
+    health_url = "#{url}/payments/service-health"
+    p health_url
+    cache_name = "#{processor_type}_health"
+
+    health = Cache.get(cache_name)
+
+    if health.nil? 
+      response = HTTParty.get(health_url, timeout: 5)
+      p "health get new response #{response.parsed_response}"
+
+      result = response.parsed_response
+      Cache.set(cache_name, result.to_json, ex: 5)
+
+      p "health not in cache"
+      !result["failing"]
+    else
+      p "health in cache"
+      !JSON.parse(health)["failing"]
+    end
   end
 
   def self.payment_url
@@ -13,28 +35,19 @@ class DefaultGatewayClient
     url
   end
 
+end
+class DefaultGatewayClient < PaymentGatewayBase
+
+  def self.url 
+      ENV['PROCESSOR_DEFAULT_URL'] || "localhost:8001"
+  end
+
   def self.processor_type
     "default"
   end
-
-  def self.health(times = 1)
-    p "health url #{times}"
-    health_url = "#{url}/payments/service-health"
-    p health_url
-
-    response = HTTParty.get(health_url, timeout: 5)
-    p "health"
-
-    result = response.parsed_response
-
-    is_falling = result["failing"] != false
-    p "is falling #{is_falling}"
-    p is_falling
-    result
-  end
 end
 
-class FallbackGatewayClient
+class FallbackGatewayClient < PaymentGatewayBase
   def self.url
       ENV['PROCESSOR_FALLBACK_URL'] || 'localhost:8002'
   end
@@ -71,7 +84,6 @@ class PaymentGatewayClient
       # p "HTTP error message: #{response.message}"
       raise GatewayError, "Payment processing failed at #{gateway.processor_type} gateway"
       # p "error at gateway #{gateway.processor_type}"
-      raise GatewayError, "Payment processing failed at #{gateway.processor_type} gateway"
     end
 
     # p "response"
