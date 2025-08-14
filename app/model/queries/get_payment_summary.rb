@@ -41,6 +41,8 @@ class GetPaymentSummary
         totalRequests: group[:total_requests].round(1),
         totalAmount: group[:total_amount].round(1)
       }
+
+      puts "\n"
       result
     end
   end

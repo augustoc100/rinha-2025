@@ -19,8 +19,8 @@ x-service-templates:
     deploy:
       resources:
         limits:
-          cpus: "0.40"
-          memory: "70MB"
+          cpus: "0.45"
+          memory: "90MB"
     depends_on:
       - db
       - redis
@@ -79,13 +79,15 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - payment-db
     deploy:
       resources:
         limits:
-          cpus: "0.30"
-          memory: "130MB"
+          cpus: "0.20"
+          # memory: "130MB"
+          memory: "90MB"
 volumes:
   pgdata:
 

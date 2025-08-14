@@ -4,34 +4,44 @@ require 'json'
 require_relative './../cache'
 
 class PaymentGatewayBase
-  def self.health(times = 1)
-    p "health url #{times}"
+#   {
+#     "failing": false,
+#     "minResponseTime": 100
+# }
+
+  def self.get_health_data
     health_url = "#{url}/payments/service-health"
-    p health_url
+    # p health_url
     cache_name = "#{processor_type}_health"
 
     health = Cache.get(cache_name)
-
     if health.nil? 
       response = HTTParty.get(health_url, timeout: 5)
-      p "health get new response #{response.parsed_response}"
+      # p "health get new response #{response.parsed_response}"
 
       result = response.parsed_response
       Cache.set(cache_name, result.to_json, ex: 5)
 
-      p "health not in cache"
-      !result["failing"]
+      result
     else
-      p "health in cache"
-      !JSON.parse(health)["failing"]
+      # p "health in cache"
+      JSON.parse(health)
     end
+  end
+
+  def self.health
+    !get_health_data["failing"]
+  end
+
+  def self.respond_in
+    get_health_data["minResponseTime"].to_i
   end
 
   def self.payment_url
     url = self.url.end_with?('/payments') ? self.url : "#{self.url}/payments"
     url = "http://#{url}" unless url.start_with?('http')
-    p "url"
-    p url
+    # p "url"
+    # p url
     url
   end
 
@@ -73,8 +83,8 @@ class PaymentGatewayClient
     # p url
     # p "body"
     # p body
-    p "Gateway Health"
-    p gateway.health
+    # p "Gateway Health"
+    # p gateway.health
 
     response = HTTParty.post(url, body: body.to_json, headers: { 'Content-Type' => 'application/json' })
 

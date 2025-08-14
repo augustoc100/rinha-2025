@@ -16,9 +16,12 @@
 
     # Adiciona índices se não existirem (verificando pelo nome do índice)
     indexes = DB.indexes(:payments)
-    DB.add_index :payments, :requested_at, name: :idx_payments_requested_at unless indexes.key?(:idx_payments_requested_at)
-    DB.add_index :payments, :processed_by, name: :idx_payments_processed_by unless indexes.key?(:idx_payments_processed_by)
     DB.add_index :payments, [:requested_at, :processed_by], name: :idx_payments_requested_at_processed_by unless indexes.key?(:idx_payments_requested_at_processed_by)
+
+    # Índice para ordenação decrescente por requested_at
+    unless indexes.key?(:idx_payments_requested_at_desc)
+      DB.run "CREATE INDEX idx_payments_requested_at_desc ON payments (requested_at DESC);"
+    end
   end
 
   def update_tables
