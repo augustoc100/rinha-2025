@@ -8,13 +8,16 @@ class PaymentController < Sinatra::Base
   configure do
     set :logging, false
   end
-    post "/payments" do
-      # p "POST payment"
+
+  post "/payments" do
+    # p "HERE"
+    begin
       params = JSON.parse request.body.read
-
       ProcessPayment.call(params)
-
-      status 200
+      status 202
+    rescue JSON::ParserError
+      halt 400, { error: 'JSON inválido' }.to_json
+    end
   end
 
   get "/payments-count" do
