@@ -7,7 +7,10 @@ def connect_with_retry
   retries = 0
   max_retries = 15
   begin
-    return Sequel.connect(ENV['DATABASE_URL'] || 'postgres://postgres:postgres@localhost:5432/backend')
+    return Sequel.connect(
+      ENV['DATABASE_URL'] || 'postgres://postgres:postgres@localhost:5432/backend',
+      max_connections: 50
+    )
   rescue Sequel::DatabaseConnectionError, PG::ConnectionBad => e
     retries += 1
     puts "Database not ready, retrying (\e[33m#{retries}\e[0m/#{max_retries})..."

@@ -65,6 +65,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  connection_pool
   httparty
   pg (~> 1.5)
   pry (~> 0.15.0)

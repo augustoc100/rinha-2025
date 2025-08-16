@@ -13,6 +13,7 @@ gem "sequel", "~> 5.0"
 gem "pg", "~> 1.5"
 gem 'pry', '~> 0.15.0'
 gem "redis"
+gem "connection_pool"
 
 
 group :development, :test do

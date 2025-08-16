@@ -6,10 +6,10 @@ class Cache
   end
 
   def self.get(key)
-    redis.get(key)
+    get_redis_connection.with { |conn| conn.get(key) }
   end
 
   def self.set(key, value, ex: nil)
-    redis.set(key, value, ex: ex)
+    get_redis_connection.with { |conn| conn.set(key, value, ex: ex) }
   end
 end

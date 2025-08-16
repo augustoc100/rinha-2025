@@ -86,14 +86,23 @@ class PaymentGatewayClient
     # p "Gateway Health"
     # p gateway.health
 
-    response = HTTParty.post(url, body: body.to_json, headers: { 'Content-Type' => 'application/json' })
+
+    begin
+      response = HTTParty.post(url, body: body.to_json, headers: { 'Content-Type' => 'application/json' })
+    rescue Net::ReadTimeout => e
+      warn "[PaymentGatewayClient.process] Net::ReadTimeout ao chamar #{url} (gateway: #{gateway.processor_type})"
+      warn e.backtrace.join("\n")
+      raise GatewayError, "Timeout ao processar pagamento no gateway #{gateway.processor_type}"
+    rescue => e
+      warn "[PaymentGatewayClient.process] Erro ao chamar #{url} (gateway: #{gateway.processor_type}): #{e.class} - #{e.message}"
+      warn e.backtrace.join("\n")
+      raise GatewayError, "Erro ao processar pagamento no gateway #{gateway.processor_type}: #{e.class} - #{e.message}"
+    end
 
     if response.code >= 400
-      # p "error at gateway #{gateway.processor_type}"
-      # p "HTTP error body: #{response.body}"
-      # p "HTTP error message: #{response.message}"
+      warn "[PaymentGatewayClient.process] HTTP #{response.code} ao chamar #{url} (gateway: #{gateway.processor_type})"
+      warn "Body: #{response.body}"
       raise GatewayError, "Payment processing failed at #{gateway.processor_type} gateway"
-      # p "error at gateway #{gateway.processor_type}"
     end
 
     # p "response"

@@ -10,7 +10,7 @@ require_relative './app/infra/workers'
 Thread.new do
    Workers.configure_workers(
       queue_name: Workers::PAYMENTS_QUEUE,
-      worker_count: 15,
+      worker_count: 20,
       callback: ->(payment_data) { ProcessPayment.process_payment_data(payment_data) }
     )
 end
