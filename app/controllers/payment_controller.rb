@@ -2,6 +2,8 @@
 require 'sinatra/base'
 require_relative '../model/payment'
 require_relative '../model/queries/get_payment_summary'
+require_relative '../infra/queue'
+require_relative '../infra/workers'
 require_relative '../use_cases/process_payment'
 
 class PaymentController < Sinatra::Base
@@ -36,9 +38,13 @@ class PaymentController < Sinatra::Base
     p count
     dataset.delete
 
+    # Limpa a fila do Redis
+    Queue.push(Workers::PAYMENTS_QUEUE, nil) # Garante que a fila existe
+    get_redis_connection.with { |conn| conn.del(Workers::PAYMENTS_QUEUE) }
+
     {
       purged_payments: count
-  }.to_json
+    }.to_json
   end
 
   get "/payments-summary" do
