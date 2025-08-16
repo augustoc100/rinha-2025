@@ -1,30 +1,23 @@
 class GatewayError < StandardError; end
 
+require 'httparty'
 require 'json'
+
 require_relative './../cache'
-
 class PaymentGatewayBase
-#   {
-#     "failing": false,
-#     "minResponseTime": 100
-# }
-
   def self.get_health_data
     health_url = "#{url}/payments/service-health"
-    # p health_url
     cache_name = "#{processor_type}_health"
 
     health = Cache.get(cache_name)
     if health.nil? 
-      response = HTTParty.get(health_url, timeout: 5)
-      # p "health get new response #{response.parsed_response}"
+      response = HTTParty.get(health_url, timeout: 2)
 
       result = response.parsed_response
       Cache.set(cache_name, result.to_json, ex: 5)
 
       result
     else
-      # p "health in cache"
       JSON.parse(health)
     end
   end
@@ -40,8 +33,6 @@ class PaymentGatewayBase
   def self.payment_url
     url = self.url.end_with?('/payments') ? self.url : "#{self.url}/payments"
     url = "http://#{url}" unless url.start_with?('http')
-    # p "url"
-    # p url
     url
   end
 
@@ -67,9 +58,6 @@ class FallbackGatewayClient < PaymentGatewayBase
   end
 end
 
-
-require 'httparty'
-
 class PaymentGatewayClient
   def self.process(gateway, payment)
     url = gateway.payment_url
@@ -79,35 +67,24 @@ class PaymentGatewayClient
       amount: payment["amount"],
       requestedAt: DateTime.parse(payment["requested_at"]).iso8601
     }
-    # p "url"
-    # p url
-    # p "body"
-    # p body
-    # p "Gateway Health"
-    # p gateway.health
-
 
     begin
       response = HTTParty.post(url, body: body.to_json, headers: { 'Content-Type' => 'application/json' })
     rescue Net::ReadTimeout => e
-      warn "[PaymentGatewayClient.process] Net::ReadTimeout ao chamar #{url} (gateway: #{gateway.processor_type})"
-      warn e.backtrace.join("\n")
+      # warn "[PaymentGatewayClient.process] Net::ReadTimeout ao chamar #{url} (gateway: #{gateway.processor_type})"
+      # warn e.backtrace.join("\n")
       raise GatewayError, "Timeout ao processar pagamento no gateway #{gateway.processor_type}"
     rescue => e
-      warn "[PaymentGatewayClient.process] Erro ao chamar #{url} (gateway: #{gateway.processor_type}): #{e.class} - #{e.message}"
-      warn e.backtrace.join("\n")
+      # warn "[PaymentGatewayClient.process] Erro ao chamar #{url} (gateway: #{gateway.processor_type}): #{e.class} - #{e.message}"
+      # warn e.backtrace.join("\n")
       raise GatewayError, "Erro ao processar pagamento no gateway #{gateway.processor_type}: #{e.class} - #{e.message}"
     end
 
     if response.code >= 400
-      warn "[PaymentGatewayClient.process] HTTP #{response.code} ao chamar #{url} (gateway: #{gateway.processor_type})"
-      warn "Body: #{response.body}"
+      # warn "[PaymentGatewayClient.process] HTTP #{response.code} ao chamar #{url} (gateway: #{gateway.processor_type})"
+      # warn "Body: #{response.body}"
       raise GatewayError, "Payment processing failed at #{gateway.processor_type} gateway"
     end
-
-    # p "response"
-    # p response
-    # p response.parsed_response
 
     if response.parsed_response.nil?
       return {}
