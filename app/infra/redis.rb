@@ -29,7 +29,7 @@ require 'connection_pool'
 
 
 # Pool de conexões Redis igual ao total de threads do Puma (16)
-REDIS_POOL = ConnectionPool.new(size: 50, timeout: 5) do
+REDIS_POOL = ConnectionPool.new(size: 100, timeout: 5) do
   Redis.new(
     url: ENV['REDIS_URL'] || 'redis://localhost:6379/0',
     connect_timeout: 5,

@@ -25,11 +25,7 @@ class GetPaymentSummary
 
     grouped = DB[sql, *params_arr].all
 
-     p "grouepd #{grouped}"
-     p "DB #{DB}"
     grouped_data = grouped.group_by { it[:processed_by] }
-
-    p grouped_data.inspect
 
  %w[default fallback].reduce({}) do |result, key|
       group = (grouped_data[key] || []).first
@@ -42,7 +38,6 @@ class GetPaymentSummary
         totalAmount: group[:total_amount].round(1)
       }
 
-      puts "\n"
       result
     end
   end

@@ -1,5 +1,4 @@
 require 'sequel'
-require 'logger'
 
 require_relative 'tables'
 
@@ -9,7 +8,7 @@ def connect_with_retry
   begin
     return Sequel.connect(
       ENV['DATABASE_URL'] || 'postgres://postgres:postgres@localhost:5432/backend',
-      max_connections: 50
+      max_connections: 70
     )
   rescue Sequel::DatabaseConnectionError, PG::ConnectionBad => e
     retries += 1

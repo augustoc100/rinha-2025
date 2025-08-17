@@ -11,7 +11,7 @@ class PaymentGatewayBase
 
     health = Cache.get(cache_name)
     if health.nil? 
-      response = HTTParty.get(health_url, timeout: 2)
+      response = HTTParty.get(health_url, timeout: 5)
 
       result = response.parsed_response
       Cache.set(cache_name, result.to_json, ex: 5)
@@ -75,6 +75,7 @@ class PaymentGatewayClient
       # warn e.backtrace.join("\n")
       raise GatewayError, "Timeout ao processar pagamento no gateway #{gateway.processor_type}"
     rescue => e
+      P "Error on httpRequest"
       # warn "[PaymentGatewayClient.process] Erro ao chamar #{url} (gateway: #{gateway.processor_type}): #{e.class} - #{e.message}"
       # warn e.backtrace.join("\n")
       raise GatewayError, "Erro ao processar pagamento no gateway #{gateway.processor_type}: #{e.class} - #{e.message}"
